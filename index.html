@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Laboratório virtual acessível para estudar biologia ocular."
+    >
+
+    <title>Laboratório de Biologia Ocular</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================================
+         BARRA DE ACESSIBILIDADE
+    ================================= -->
+
+    <div
+        class="accessibility-bar"
+        role="region"
+        aria-label="Ferramentas de acessibilidade"
+    >
+
+        <button id="btnContrast" type="button">
+            ◐ Alto contraste
+        </button>
+
+        <button id="btnInvert" type="button">
+            ◑ Inverter cores
+        </button>
+
+        <button id="btnFontPlus" type="button">
+            A+
+        </button>
+
+        <button id="btnFontMinus" type="button">
+            A-
+        </button>
+
+        <button id="btnFontReset" type="button">
+            A 100%
+        </button>
+
+        <button id="btnRead" type="button">
+            🔊 Ler página
+        </button>
+
+        <button id="btnStopSpeech" type="button">
+            ⏹ Parar
+        </button>
+
+        <button id="btnVoice" type="button">
+            🎙️ Comando de voz
+        </button>
+
+    </div>
+
+
+    <!-- STATUS PARA LEITORES DE TELA -->
+
+    <div
+        id="liveRegion"
+        class="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+    ></div>
+
+
+    <!-- ================================
+         CABEÇALHO
+    ================================= -->
+
+    <header class="site-header">
+
+        <div class="container">
+
+            <p class="eyebrow">
+                LABORATÓRIO VIRTUAL
+            </p>
+
+            <h1>
+                Biologia do Olho
+            </h1>
+
+            <p class="subtitle">
+                Aprenda como o olho transforma luz em informação para o cérebro.
+            </p>
+
+            <div class="header-actions">
+
+                <button
+                    class="primary-button"
+                    onclick="document.getElementById('experimentos').focus()"
+                >
+                    Começar laboratório
+                </button>
+
+                <button
+                    class="secondary-button"
+                    id="btnInstructions"
+                >
+                    Como usar
+                </button>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================================
+         NAVEGAÇÃO
+    ================================= -->
+
+    <nav
+        class="main-nav"
+        aria-label="Navegação principal"
+    >
+
+        <div class="container nav-container">
+
+            <a href="#inicio">
+                Início
+            </a>
+
+            <a href="#experimentos">
+                Experimentos
+            </a>
+
+            <a href="#conceitos">
+                Conceitos
+            </a>
+
+            <a href="#quiz">
+                Quiz
+            </a>
+
+            <a href="#acessibilidade">
+                Acessibilidade
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <main id="inicio">
+
+
+        <!-- ================================
+             INTRODUÇÃO
+        ================================= -->
+
+        <section class="intro-section">
+
+            <div class="container">
+
+                <div class="intro-card">
+
+                    <span class="section-number">
+                        01
+                    </span>
+
+                    <div>
+
+                        <h2>
+                            Bem-vindo ao laboratório
+                        </h2>
+
+                        <p>
+                            Neste laboratório você poderá explorar, de forma
+                            interativa e acessível, alguns processos biológicos
+                            relacionados à visão.
+                        </p>
+
+                        <p>
+                            Você poderá utilizar mouse, teclado, leitor de tela,
+                            comandos de voz e leitura automática para navegar
+                            pelos experimentos.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             EXPERIMENTOS
+        ================================= -->
+
+        <section
+            id="experimentos"
+            class="experiments-section"
+            tabindex="-1"
+        >
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <p class="eyebrow">
+                        EXPERIMENTOS
+                    </p>
+
+                    <h2>
+                        Escolha um experimento
+                    </h2>
+
+                    <p>
+                        Cada experimento representa um processo biológico
+                        relacionado ao funcionamento do sistema visual.
+                    </p>
+
+                </div>
+
+
+                <div class="experiment-grid">
+
+
+                    <article class="experiment-card">
+
+                        <div
+                            class="experiment-icon"
+                            aria-hidden="true"
+                        >
+                            💡
+                        </div>
+
+                        <h3>
+                            Caminho da luz
+                        </h3>
+
+                        <p>
+                            Descubra como a luz atravessa as estruturas do olho
+                            até chegar à retina.
+                        </p>
+
+                        <button
+                            class="experiment-button"
+                            data-experiment="light"
+                        >
+                            Abrir experimento
+                        </button>
+
+                    </article>
+
+
+                    <article class="experiment-card">
+
+                        <div
+                            class="experiment-icon"
+                            aria-hidden="true"
+                        >
+                            🧬
+                        </div>
+
+                        <h3>
+                            Cones e bastonetes
+                        </h3>
+
+                        <p>
+                            Compare os dois principais tipos de fotorreceptores
+                            da retina.
+                        </p>
+
+                        <button
+                            class="experiment-button"
+                            data-experiment="photoreceptors"
+                        >
+                            Abrir experimento
+                        </button>
+
+                    </article>
+
+
+                    <article class="experiment-card">
+
+                        <div
+                            class="experiment-icon"
+                            aria-hidden="true"
+                        >
+                            👁️
+                        </div>
+
+                        <h3>
+                            Reflexo pupilar
+                        </h3>
+
+                        <p>
+                            Observe como a pupila responde à intensidade da luz.
+                        </p>
+
+                        <button
+                            class="experiment-button"
+                            data-experiment="pupil"
+                        >
+                            Abrir experimento
+                        </button>
+
+                    </article>
+
+
+                    <article class="experiment-card">
+
+                        <div
+                            class="experiment-icon"
+                            aria-hidden="true"
+                        >
+                            ⚡
+                        </div>
+
+                        <h3>
+                            Retina e cérebro
+                        </h3>
+
+                        <p>
+                            Explore como os sinais gerados na retina seguem
+                            pelo nervo óptico até o cérebro.
+                        </p>
+
+                        <button
+                            class="experiment-button"
+                            data-experiment="signal"
+                        >
+                            Abrir experimento
+                        </button>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             ÁREA DO EXPERIMENTO
+        ================================= -->
+
+        <section
+            id="laboratory"
+            class="laboratory-section"
+            aria-labelledby="laboratory-title"
+        >
+
+            <div class="container">
+
+                <div class="laboratory-header">
+
+                    <div>
+
+                        <p class="eyebrow">
+                            LABORATÓRIO
+                        </p>
+
+                        <h2 id="laboratory-title">
+                            Caminho da luz
+                        </h2>
+
+                    </div>
+
+                    <button
+                        id="btnExplainExperiment"
+                        class="secondary-button"
+                    >
+                        🔊 Explicar experimento
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="experimentDescription"
+                    class="experiment-description"
+                    aria-live="polite"
+                >
+                    A luz entra pela córnea, passa pela pupila e pelo cristalino.
+                    Depois é direcionada para a retina, onde os fotorreceptores
+                    transformam a informação luminosa em sinais neurais.
+                </div>
+
+
+                <!-- ================================
+                     REPRESENTAÇÃO ANATÔMICA
+                ================================= -->
+
+                <div
+                    id="visualSimulation"
+                    class="visual-simulation"
+                    role="img"
+                    aria-label="Representação anatômica simplificada em corte lateral do olho humano."
+                >
+
+                    <div class="eye-anatomy">
+
+                        <!-- Esclera -->
+                        <div
+                            class="eye-part sclera"
+                            aria-hidden="true"
+                        ></div>
+
+
+                        <!-- Córnea -->
+                        <div
+                            class="eye-part cornea"
+                            tabindex="0"
+                            data-part="cornea"
+                            aria-label="Córnea. Camada transparente anterior do olho."
+                        >
+                            <span>Córnea</span>
+                        </div>
+
+
+                        <!-- Íris -->
+                        <div
+                            class="eye-part iris"
+                            tabindex="0"
+                            data-part="iris"
+                            aria-label="Íris. Estrutura que controla o tamanho da pupila."
+                        >
+                            <span>Íris</span>
+                        </div>
+
+
+                        <!-- Pupila -->
+                        <div
+                            class="eye-part pupil"
+                            tabindex="0"
+                            data-part="pupil"
+                            aria-label="Pupila. Abertura central da íris."
+                        >
+                            <span>Pupila</span>
+                        </div>
+
+
+                        <!-- Cristalino -->
+                        <div
+                            class="eye-part lens"
+                            tabindex="0"
+                            data-part="lens"
+                            aria-label="Cristalino. Estrutura transparente que ajuda a focalizar a luz."
+                        >
+                            <span>Cristalino</span>
+                        </div>
+
+
+                        <!-- Humor vítreo -->
+                        <div
+                            class="eye-part vitreous"
+                            aria-hidden="true"
+                        >
+                            <span>Humor vítreo</span>
+                        </div>
+
+
+                        <!-- Retina -->
+                        <div
+                            class="eye-part retina"
+                            tabindex="0"
+                            data-part="retina"
+                            aria-label="Retina. Tecido neural localizado na parte posterior interna do olho."
+                        >
+                            <span>Retina</span>
+                        </div>
+
+
+                        <!-- Mácula -->
+                        <div
+                            class="eye-part macula"
+                            tabindex="0"
+                            data-part="macula"
+                            aria-label="Mácula. Região especializada da retina relacionada à visão central."
+                        >
+                            <span>Mácula</span>
+                        </div>
+
+
+                        <!-- Fóvea -->
+                        <div
+                            class="eye-part fovea"
+                            tabindex="0"
+                            data-part="fovea"
+                            aria-label="Fóvea. Região central da mácula associada à alta acuidade visual."
+                        >
+                        </div>
+
+
+                        <!-- Nervo óptico -->
+                        <div
+                            class="eye-part optic-nerve"
+                            tabindex="0"
+                            data-part="optic-nerve"
+                            aria-label="Nervo óptico. Conduz informações da retina em direção ao cérebro."
+                        >
+                            <span>Nervo óptico</span>
+                        </div>
+
+
+                        <!-- Caminho da luz -->
+
+                        <div
+                            class="light-path"
+                            aria-hidden="true"
+                        >
+
+                            <div class="light-particle"></div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="anatomyDescription"
+                        class="anatomy-description"
+                        aria-live="polite"
+                    >
+                        Selecione uma estrutura do olho para conhecer sua função.
+                    </div>
+
+                </div>
+
+
+                <!-- CONTROLES -->
+
+                <div
+                    class="simulation-controls"
+                    aria-label="Controles do experimento"
+                >
+
+                    <button
+                        id="btnStartExperiment"
+                        class="primary-button"
+                    >
+                        ▶ Iniciar
+                    </button>
+
+                    <button
+                        id="btnPauseExperiment"
+                        class="secondary-button"
+                    >
+                        ⏸ Pausar
+                    </button>
+
+                    <button
+                        id="btnResetExperiment"
+                        class="secondary-button"
+                    >
+                        ↻ Reiniciar
+                    </button>
+
+                    <button
+                        id="btnSound"
+                        class="secondary-button"
+                    >
+                        🔊 Som: ligado
+                    </button>
+
+                </div>
+
+
+                <!-- ETAPA -->
+
+                <div
+                    class="step-card"
+                    aria-live="polite"
+                >
+
+                    <span>
+                        ETAPA ATUAL
+                    </span>
+
+                    <h3 id="stepTitle">
+                        Pronto para começar
+                    </h3>
+
+                    <p id="stepDescription">
+                        Pressione iniciar para começar a simulação.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             CONCEITOS
+        ================================= -->
+
+        <section
+            id="conceitos"
+            class="concepts-section"
+        >
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <p class="eyebrow">
+                        CONHECIMENTO
+                    </p>
+
+                    <h2>
+                        Conceitos essenciais
+                    </h2>
+
+                </div>
+
+
+                <div class="concept-list">
+
+                    <article class="concept-card">
+
+                        <h3>
+                            Retina
+                        </h3>
+
+                        <p>
+                            A retina é um tecido especializado localizado no
+                            fundo do olho. Ela contém células capazes de
+                            detectar a luz e iniciar processos que levam à
+                            formação dos sinais neurais relacionados à visão.
+                        </p>
+
+                        <button
+                            class="read-button"
+                            data-read-target="retinaText"
+                        >
+                            🔊 Ouvir
+                        </button>
+
+                        <span
+                            id="retinaText"
+                            class="sr-only"
+                        >
+                            A retina é um tecido especializado localizado no
+                            fundo do olho. Ela contém células capazes de
+                            detectar a luz e iniciar processos que levam à
+                            formação dos sinais neurais relacionados à visão.
+                        </span>
+
+                    </article>
+
+
+                    <article class="concept-card">
+
+                        <h3>
+                            Bastonetes
+                        </h3>
+
+                        <p>
+                            Os bastonetes são fotorreceptores muito sensíveis
+                            à luz e têm papel importante na visão em ambientes
+                            com pouca iluminação.
+                        </p>
+
+                        <button
+                            class="read-button"
+                            data-read-target="rodText"
+                        >
+                            🔊 Ouvir
+                        </button>
+
+                        <span
+                            id="rodText"
+                            class="sr-only"
+                        >
+                            Os bastonetes são fotorreceptores muito sensíveis
+                            à luz e têm papel importante na visão em ambientes
+                            com pouca iluminação.
+                        </span>
+
+                    </article>
+
+
+                    <article class="concept-card">
+
+                        <h3>
+                            Cones
+                        </h3>
+
+                        <p>
+                            Os cones são fotorreceptores associados à visão
+                            em condições de maior iluminação e à percepção
+                            das cores.
+                        </p>
+
+                        <button
+                            class="read-button"
+                            data-read-target="coneText"
+                        >
+                            🔊 Ouvir
+                        </button>
+
+                        <span
+                            id="coneText"
+                            class="sr-only"
+                        >
+                            Os cones são fotorreceptores associados à visão
+                            em condições de maior iluminação e à percepção
+                            das cores.
+                        </span>
+
+                    </article>
+
+
+                    <article class="concept-card">
+
+                        <h3>
+                            Nervo óptico
+                        </h3>
+
+                        <p>
+                            O nervo óptico reúne fibras de células ganglionares
+                            da retina e participa da transmissão das informações
+                            visuais em direção ao cérebro.
+                        </p>
+
+                        <button
+                            class="read-button"
+                            data-read-target="opticText"
+                        >
+                            🔊 Ouvir
+                        </button>
+
+                        <span
+                            id="opticText"
+                            class="sr-only"
+                        >
+                            O nervo óptico reúne fibras de células ganglionares
+                            da retina e participa da transmissão das informações
+                            visuais em direção ao cérebro.
+                        </span>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             QUIZ
+        ================================= -->
+
+        <section
+            id="quiz"
+            class="quiz-section"
+        >
+
+            <div class="container">
+
+                <div class="section-heading">
+
+                    <p class="eyebrow">
+                        DESAFIO
+                    </p>
+
+                    <h2>
+                        Quiz de biologia ocular
+                    </h2>
+
+                    <p>
+                        Teste seus conhecimentos.
+                    </p>
+
+                </div>
+
+
+                <div class="quiz-card">
+
+                    <p
+                        id="questionNumber"
+                        class="question-number"
+                    >
+                        Questão 1 de 3
+                    </p>
+
+                    <h3 id="questionText">
+                        Qual estrutura contém os principais fotorreceptores?
+                    </h3>
+
+
+                    <div
+                        id="answers"
+                        class="answers"
+                        role="group"
+                        aria-label="Alternativas"
+                    >
+
+                        <button class="answer">
+                            Retina
+                        </button>
+
+                        <button class="answer">
+                            Esclera
+                        </button>
+
+                        <button class="answer">
+                            Íris
+                        </button>
+
+                        <button class="answer">
+                            Córnea
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="quizFeedback"
+                        class="quiz-feedback"
+                        aria-live="assertive"
+                    ></div>
+
+                    <button
+                        id="nextQuestion"
+                        class="primary-button"
+                        hidden
+                    >
+                        Próxima questão
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================================
+             ACESSIBILIDADE
+        ================================= -->
+
+        <section
+            id="acessibilidade"
+            class="accessibility-section"
+        >
+
+            <div class="container">
+
+                <div class="accessibility-card">
+
+                    <p class="eyebrow">
+                        ACESSIBILIDADE
+                    </p>
+
+                    <h2>
+                        Este laboratório foi pensado para diferentes formas de interação
+                    </h2>
+
+                    <ul>
+
+                        <li>
+                            Use <strong>Tab</strong> e
+                            <strong>Shift + Tab</strong>
+                            para navegar.
+                        </li>
+
+                        <li>
+                            Use <strong>Enter</strong> ou
+                            <strong>Espaço</strong>
+                            para ativar botões.
+                        </li>
+
+                        <li>
+                            Use <strong>Ler página</strong>
+                            para ouvir o conteúdo.
+                        </li>
+
+                        <li>
+                            Use <strong>Comando de voz</strong>
+                            para executar ações.
+                        </li>
+
+                        <li>
+                            Use os controles de contraste e tamanho do texto
+                            para adaptar a interface.
+                        </li>
+
+                    </ul>
+
+                    <h3>
+                        Comandos de voz disponíveis
+                    </h3>
+
+                    <ul class="voice-commands">
+
+                        <li>
+                            "Aumentar texto"
+                        </li>
+
+                        <li>
+                            "Diminuir texto"
+                        </li>
+
+                        <li>
+                            "Alto contraste"
+                        </li>
+
+                        <li>
+                            "Ler página"
+                        </li>
+
+                        <li>
+                            "Parar leitura"
+                        </li>
+
+                        <li>
+                            "Iniciar experimento"
+                        </li>
+
+                        <li>
+                            "Reiniciar experimento"
+                        </li>
+
+                        <li>
+                            "Próxima questão"
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================================
+         RODAPÉ
+    ================================= -->
+
+    <footer class="site-footer">
+
+        <div class="container">
+
+            <p>
+                Laboratório Virtual de Biologia Ocular
+            </p>
+
+            <p>
+                Projeto educacional de acessibilidade.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <!-- ================================
+         MODAL
+    ================================= -->
+
+    <dialog id="instructionsModal">
+
+        <div class="modal-content">
+
+            <button
+                id="closeModal"
+                class="modal-close"
+                aria-label="Fechar instruções"
+            >
+                ×
+            </button>
+
+            <h2>
+                Como utilizar o laboratório
+            </h2>
+
+            <p>
+                Você pode navegar pelo site utilizando teclado,
+                mouse, leitor de tela ou comandos de voz.
+            </p>
+
+            <p>
+                Para iniciar um experimento, selecione um dos cartões
+                disponíveis na seção Experimentos.
+            </p>
+
+            <p>
+                O botão Ler página utiliza a síntese de voz disponível
+                no seu navegador.
+            </p>
+
+            <p>
+                O comando de voz utiliza o reconhecimento de voz do navegador,
+                quando essa tecnologia estiver disponível.
+            </p>
+
+        </div>
+
+    </dialog>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
