@@ -1,5 +1,274 @@
+O ChatGPT disse:
+Perfeito. Sem alterar o HTML nem o CSS atual, você pode resolver isso substituindo o conteúdo do seu script.js por um único JavaScript que faça a integração de tudo.
+
+O código abaixo mantém o visual atual e apenas adiciona o comportamento aos elementos que você já criou:
+
+alto contraste;
+inversão de cores;
+A+, A- e reset da fonte;
+leitura completa da página;
+leitura dos conceitos;
+parar leitura;
+explicação do experimento;
+navegação por teclado;
+interação com as estruturas do olho;
+Caminho da luz;
+Cones e bastonetes;
+Reflexo pupilar;
+Retina e cérebro;
+iniciar, pausar e reiniciar;
+som ligado/desligado;
+seleção dos experimentos;
+quiz completo com 3 questões;
+feedback das respostas;
+modal "Como usar";
+comandos de voz em português;
+mensagens para leitores de tela;
+suporte a prefers-reduced-motion;
+reconhecimento de voz quando disponível.
+Substitua somente o conteúdo do script.js atual por este:
+
 /* =========================================================
-   SUBSTITUA SOMENTE O SISTEMA DE VOZ ORIGINAL POR ESTE
+   LABORATÓRIO DE BIOLOGIA OCULAR
+   SISTEMA COMPLETO DE INTERAÇÃO E ACESSIBILIDADE
+
+   Este arquivo utiliza o HTML e o CSS existentes.
+   Não é necessário alterar o index.html ou style.css.
+========================================================= */
+
+
+/* =========================================================
+   UTILIDADES
+========================================================= */
+
+const $ = selector => document.querySelector(selector);
+
+const $$ = selector => document.querySelectorAll(selector);
+
+
+/* =========================================================
+   STATUS PARA LEITORES DE TELA
+========================================================= */
+
+const liveRegion = $("#liveRegion");
+
+
+function announce(message) {
+
+    if (!liveRegion || !message) {
+        return;
+    }
+
+    liveRegion.textContent = "";
+
+    /*
+        Pequeno atraso para garantir que leitores de tela
+        percebam uma nova mensagem mesmo que ela seja igual
+        à anterior.
+    */
+
+    setTimeout(() => {
+
+        liveRegion.textContent = message;
+
+    }, 50);
+}
+
+
+/* =========================================================
+   ACESSIBILIDADE — CONTRASTE
+========================================================= */
+
+const btnContrast = $("#btnContrast");
+
+
+if (btnContrast) {
+
+    btnContrast.addEventListener("click", () => {
+
+        document.body.classList.toggle("high-contrast");
+
+        const enabled =
+            document.body.classList.contains("high-contrast");
+
+        localStorage.setItem(
+            "ocularHighContrast",
+            enabled
+        );
+
+        announce(
+            enabled
+                ? "Alto contraste ativado."
+                : "Alto contraste desativado."
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   ACESSIBILIDADE — INVERSÃO
+========================================================= */
+
+const btnInvert = $("#btnInvert");
+
+
+if (btnInvert) {
+
+    btnInvert.addEventListener("click", () => {
+
+        document.body.classList.toggle("inverted");
+
+        const enabled =
+            document.body.classList.contains("inverted");
+
+        localStorage.setItem(
+            "ocularInverted",
+            enabled
+        );
+
+        announce(
+            enabled
+                ? "Inversão de cores ativada."
+                : "Inversão de cores desativada."
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   ACESSIBILIDADE — TAMANHO DA FONTE
+========================================================= */
+
+let fontScale =
+    parseFloat(
+        localStorage.getItem(
+            "ocularFontScale"
+        )
+    ) || 1;
+
+
+function applyFontScale() {
+
+    /*
+        Mantém a variável utilizada pelo CSS.
+    */
+
+    document.documentElement.style.setProperty(
+        "--font-scale",
+        fontScale
+    );
+
+    localStorage.setItem(
+        "ocularFontScale",
+        fontScale
+    );
+
+}
+
+
+applyFontScale();
+
+
+const btnFontPlus = $("#btnFontPlus");
+const btnFontMinus = $("#btnFontMinus");
+const btnFontReset = $("#btnFontReset");
+
+
+if (btnFontPlus) {
+
+    btnFontPlus.addEventListener("click", () => {
+
+        fontScale =
+            Math.min(
+                1.6,
+                +(fontScale + 0.1).toFixed(2)
+            );
+
+        applyFontScale();
+
+        announce(
+            `Tamanho do texto aumentado para ${Math.round(fontScale * 100)} por cento.`
+        );
+
+    });
+
+}
+
+
+if (btnFontMinus) {
+
+    btnFontMinus.addEventListener("click", () => {
+
+        fontScale =
+            Math.max(
+                0.8,
+                +(fontScale - 0.1).toFixed(2)
+            );
+
+        applyFontScale();
+
+        announce(
+            `Tamanho do texto reduzido para ${Math.round(fontScale * 100)} por cento.`
+        );
+
+    });
+
+}
+
+
+if (btnFontReset) {
+
+    btnFontReset.addEventListener("click", () => {
+
+        fontScale = 1;
+
+        applyFontScale();
+
+        announce(
+            "Tamanho do texto restaurado para 100 por cento."
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   RESTAURAÇÃO DAS CONFIGURAÇÕES
+========================================================= */
+
+if (
+    localStorage.getItem(
+        "ocularHighContrast"
+    ) === "true"
+) {
+
+    document.body.classList.add(
+        "high-contrast"
+    );
+
+}
+
+
+if (
+    localStorage.getItem(
+        "ocularInverted"
+    ) === "true"
+) {
+
+    document.body.classList.add(
+        "inverted"
+    );
+
+}
+
+
+/* =========================================================
+   SISTEMA DE VOZ
 ========================================================= */
 
 const speechSupported =
@@ -11,10 +280,11 @@ let speechIndex = 0;
 
 let isSpeaking = false;
 
+let speechTimer = null;
+
 
 /*
-    Divide textos grandes em partes menores.
-    Isso evita que o navegador corte textos extensos.
+    Divide textos longos em partes menores.
 */
 
 function splitTextForSpeech(text) {
@@ -32,17 +302,10 @@ function splitTextForSpeech(text) {
         return [];
     }
 
-
-    /*
-        Divide preferencialmente depois de
-        pontuação para manter o sentido.
-    */
-
     const sentences =
         cleanText.split(
             /(?<=[.!?])\s+/
         );
-
 
     const chunks = [];
 
@@ -53,10 +316,14 @@ function splitTextForSpeech(text) {
 
     sentences.forEach(sentence => {
 
-        if (
-            sentence.length >
-            MAX_CHARS
-        ) {
+        sentence = sentence.trim();
+
+        if (!sentence) {
+            return;
+        }
+
+
+        if (sentence.length > MAX_CHARS) {
 
             const smaller =
                 sentence.split(
@@ -66,31 +333,40 @@ function splitTextForSpeech(text) {
 
             smaller.forEach(part => {
 
+                part = part.trim();
+
+                if (!part) {
+                    return;
+                }
+
+
                 if (
                     currentChunk.length +
                     part.length >
                     MAX_CHARS
                 ) {
 
-                    if (
-                        currentChunk.trim()
-                    ) {
+                    if (currentChunk.trim()) {
 
                         chunks.push(
                             currentChunk.trim()
                         );
+
                     }
 
-                    currentChunk =
-                        part;
+                    currentChunk = part;
 
                 } else {
 
                     currentChunk +=
-                        " " + part;
+                        currentChunk
+                            ? " " + part
+                            : part;
+
                 }
 
             });
+
 
         } else {
 
@@ -100,35 +376,36 @@ function splitTextForSpeech(text) {
                 MAX_CHARS
             ) {
 
-                if (
-                    currentChunk.trim()
-                ) {
+                if (currentChunk.trim()) {
 
                     chunks.push(
                         currentChunk.trim()
                     );
+
                 }
 
-                currentChunk =
-                    sentence;
+                currentChunk = sentence;
 
             } else {
 
                 currentChunk +=
-                    " " + sentence;
+                    currentChunk
+                        ? " " + sentence
+                        : sentence;
+
             }
+
         }
 
     });
 
 
-    if (
-        currentChunk.trim()
-    ) {
+    if (currentChunk.trim()) {
 
         chunks.push(
             currentChunk.trim()
         );
+
     }
 
 
@@ -137,7 +414,7 @@ function splitTextForSpeech(text) {
 
 
 /*
-    Inicia a leitura.
+    Inicia uma leitura.
 */
 
 function speak(text) {
@@ -149,235 +426,237 @@ function speak(text) {
         );
 
         return;
+
     }
 
 
-    /*
-        Cancela qualquer leitura anterior.
-    */
-
-    window.speechSynthesis.cancel();
+    stopSpeech(false);
 
 
     speechQueue =
         splitTextForSpeech(text);
 
-    speechIndex =
-        0;
+    speechIndex = 0;
 
-    isSpeaking =
-        true;
-
+    isSpeaking = true;
 
     speakNextChunk();
+
 }
 
 
 /*
-    Lê cada bloco automaticamente.
+    Lê o próximo bloco.
 */
 
 function speakNextChunk() {
 
     if (
         !isSpeaking ||
-        speechIndex >=
-        speechQueue.length
+        speechIndex >= speechQueue.length
     ) {
 
-        isSpeaking =
-            false;
+        isSpeaking = false;
 
-        speechQueue =
-            [];
+        speechQueue = [];
 
-        speechIndex =
-            0;
+        speechIndex = 0;
 
         return;
+
     }
 
 
     const utterance =
         new SpeechSynthesisUtterance(
-            speechQueue[
-                speechIndex
-            ]
+            speechQueue[speechIndex]
         );
 
 
-    utterance.lang =
-        "pt-BR";
+    utterance.lang = "pt-BR";
+
+    utterance.rate = 0.85;
+
+    utterance.pitch = 1;
+
+    utterance.volume = 1;
 
 
-    /*
-        Velocidade reduzida para melhorar
-        a compreensão do conteúdo.
-    */
+    utterance.onend = () => {
 
-    utterance.rate =
-        0.85;
+        if (!isSpeaking) {
+            return;
+        }
 
-
-    utterance.pitch =
-        1;
+        speechIndex++;
 
 
-    utterance.volume =
-        1;
-
-
-    utterance.onend =
-        () => {
-
-            if (!isSpeaking) {
-                return;
-            }
-
-            speechIndex++;
-
-            /*
-                Pequena pausa entre frases.
-            */
-
+        speechTimer =
             setTimeout(
                 speakNextChunk,
                 250
             );
-        };
+
+    };
 
 
-    utterance.onerror =
-        () => {
+    utterance.onerror = () => {
 
-            if (!isSpeaking) {
-                return;
-            }
+        if (!isSpeaking) {
+            return;
+        }
 
-            speechIndex++;
+        speechIndex++;
 
+        speechTimer =
             setTimeout(
                 speakNextChunk,
                 250
             );
-        };
+
+    };
 
 
     window.speechSynthesis.speak(
         utterance
     );
+
 }
 
 
 /*
-    Interrompe toda a fila.
+    Para a leitura.
 */
 
-function stopSpeech() {
+function stopSpeech(showMessage = true) {
 
-    isSpeaking =
-        false;
+    isSpeaking = false;
 
-    speechQueue =
-        [];
+    speechQueue = [];
 
-    speechIndex =
-        0;
+    speechIndex = 0;
 
 
-    if (
-        speechSupported
-    ) {
+    if (speechTimer) {
 
-        window.speechSynthesis.cancel();
+        clearTimeout(
+            speechTimer
+        );
+
+        speechTimer = null;
+
     }
 
 
-    announce(
-        "Leitura interrompida."
-    );
+    if (speechSupported) {
+
+        window.speechSynthesis.cancel();
+
+    }
+
+
+    if (showMessage) {
+
+        announce(
+            "Leitura interrompida."
+        );
+
+    }
+
 }
 
 
 /* =========================================================
-   LEITURA DA PÁGINA
+   BOTÕES DE LEITURA
 ========================================================= */
 
-const btnRead =
-    document.getElementById(
-        "btnRead"
-    );
-
+const btnRead = $("#btnRead");
 
 const btnStopSpeech =
-    document.getElementById(
-        "btnStopSpeech"
-    );
+    $("#btnStopSpeech");
 
 
-btnRead.addEventListener(
-    "click",
-    () => {
+if (btnRead) {
 
-        const main =
-            document.querySelector(
-                "main"
+    btnRead.addEventListener(
+        "click",
+        () => {
+
+            const main =
+                document.querySelector("main");
+
+            if (!main) {
+                return;
+            }
+
+            speak(main.innerText);
+
+            announce(
+                "Iniciando leitura da página."
             );
 
-        speak(
-            main.innerText
-        );
+        }
+    );
 
-    }
-);
+}
 
 
-btnStopSpeech.addEventListener(
-    "click",
-    stopSpeech
-);
+if (btnStopSpeech) {
+
+    btnStopSpeech.addEventListener(
+        "click",
+        () => {
+
+            stopSpeech();
+
+        }
+    );
+
+}
 
 
 /* =========================================================
    LEITURA DOS CONCEITOS
 ========================================================= */
 
-document
-    .querySelectorAll(
-        ".read-button"
-    )
-    .forEach(button => {
+$$(".read-button").forEach(button => {
 
-        button.addEventListener(
-            "click",
-            () => {
+    button.addEventListener(
+        "click",
+        () => {
 
-                const target =
-                    document.getElementById(
-                        button.dataset.readTarget
-                    );
+            const target =
+                document.getElementById(
+                    button.dataset.readTarget
+                );
 
-                if (target) {
 
-                    speak(
-                        target.textContent
-                    );
-                }
-
+            if (!target) {
+                return;
             }
-        );
 
-    });
+
+            speak(
+                target.textContent
+            );
+
+
+            announce(
+                `Lendo ${target.textContent}`
+            );
+
+        }
+    );
+
+});
 
 
 /* =========================================================
-   PARTES DO OLHO
+   INFORMAÇÕES ANATÔMICAS
 ========================================================= */
 
 const anatomyDescription =
-    document.getElementById(
-        "anatomyDescription"
-    );
+    $("#anatomyDescription");
 
 
 const anatomyInfo = {
@@ -440,62 +719,59 @@ const anatomyInfo = {
 };
 
 
-document
-    .querySelectorAll(
-        ".eye-part[data-part]"
-    )
-    .forEach(part => {
+/* =========================================================
+   INTERAÇÃO COM AS ESTRUTURAS DO OLHO
+========================================================= */
 
-        function explainAnatomy() {
+$$(".eye-part[data-part]").forEach(part => {
 
-            const key =
-                part.dataset.part;
+    function explainAnatomy() {
 
-            const information =
-                anatomyInfo[key];
+        const key =
+            part.dataset.part;
+
+        const information =
+            anatomyInfo[key];
 
 
-            if (!information) {
-                return;
-            }
+        if (!information) {
+            return;
+        }
 
+
+        if (anatomyDescription) {
 
             anatomyDescription.textContent =
                 `${information.name}: ${information.text}`;
 
-
-            speak(
-                `${information.name}. ${information.text}`
-            );
-
-
-            announce(
-                `${information.name}. ${information.text}`
-            );
         }
 
 
-        part.addEventListener(
-            "click",
-            explainAnatomy
+        announce(
+            `${information.name}. ${information.text}`
         );
 
 
-        part.addEventListener(
-            "keydown",
-            event => {
-
-                if (
-                    event.key === "Enter" ||
-                    event.key === " "
-                ) {
-
-                    event.preventDefault();
-
-                    explainAnatomy();
-                }
-
-            }
+        speak(
+            `${information.name}. ${information.text}`
         );
 
-    });
+    }
+
+
+    part.addEventListener(
+        "click",
+        explainAnatomy
+    );
+
+
+    part.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter" ||
+                event.key === " "
+            ) {
+
+                event.prevent
