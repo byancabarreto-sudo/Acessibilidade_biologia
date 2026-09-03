@@ -1,32 +1,3 @@
-O ChatGPT disse:
-Perfeito. Sem alterar o HTML nem o CSS atual, você pode resolver isso substituindo o conteúdo do seu script.js por um único JavaScript que faça a integração de tudo.
-
-O código abaixo mantém o visual atual e apenas adiciona o comportamento aos elementos que você já criou:
-
-alto contraste;
-inversão de cores;
-A+, A- e reset da fonte;
-leitura completa da página;
-leitura dos conceitos;
-parar leitura;
-explicação do experimento;
-navegação por teclado;
-interação com as estruturas do olho;
-Caminho da luz;
-Cones e bastonetes;
-Reflexo pupilar;
-Retina e cérebro;
-iniciar, pausar e reiniciar;
-som ligado/desligado;
-seleção dos experimentos;
-quiz completo com 3 questões;
-feedback das respostas;
-modal "Como usar";
-comandos de voz em português;
-mensagens para leitores de tela;
-suporte a prefers-reduced-motion;
-reconhecimento de voz quando disponível.
-Substitua somente o conteúdo do script.js atual por este:
 
 /* =========================================================
    LABORATÓRIO DE BIOLOGIA OCULAR
