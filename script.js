@@ -1,57 +1,40 @@
-
 /* =========================================================
    LABORATÓRIO DE BIOLOGIA OCULAR
-   SISTEMA COMPLETO DE INTERAÇÃO E ACESSIBILIDADE
+   SISTEMA DE INTERAÇÃO E ACESSIBILIDADE
+   ========================================================= */
 
-   Este arquivo utiliza o HTML e o CSS existentes.
-   Não é necessário alterar o index.html ou style.css.
-========================================================= */
-
+"use strict";
 
 /* =========================================================
    UTILIDADES
-========================================================= */
+   ========================================================= */
 
-const $ = selector => document.querySelector(selector);
-
-const $$ = selector => document.querySelectorAll(selector);
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
 
 
 /* =========================================================
-   STATUS PARA LEITORES DE TELA
-========================================================= */
+   REGIÃO PARA LEITORES DE TELA
+   ========================================================= */
 
 const liveRegion = $("#liveRegion");
 
-
 function announce(message) {
-
-    if (!liveRegion || !message) {
-        return;
-    }
+    if (!liveRegion || !message) return;
 
     liveRegion.textContent = "";
 
-    /*
-        Pequeno atraso para garantir que leitores de tela
-        percebam uma nova mensagem mesmo que ela seja igual
-        à anterior.
-    */
-
     setTimeout(() => {
-
         liveRegion.textContent = message;
-
     }, 50);
 }
 
 
 /* =========================================================
-   ACESSIBILIDADE — CONTRASTE
-========================================================= */
+   ACESSIBILIDADE — ALTO CONTRASTE
+   ========================================================= */
 
 const btnContrast = $("#btnContrast");
-
 
 if (btnContrast) {
 
@@ -64,7 +47,7 @@ if (btnContrast) {
 
         localStorage.setItem(
             "ocularHighContrast",
-            enabled
+            String(enabled)
         );
 
         announce(
@@ -79,11 +62,10 @@ if (btnContrast) {
 
 
 /* =========================================================
-   ACESSIBILIDADE — INVERSÃO
-========================================================= */
+   ACESSIBILIDADE — INVERSÃO DE CORES
+   ========================================================= */
 
 const btnInvert = $("#btnInvert");
-
 
 if (btnInvert) {
 
@@ -96,7 +78,7 @@ if (btnInvert) {
 
         localStorage.setItem(
             "ocularInverted",
-            enabled
+            String(enabled)
         );
 
         announce(
@@ -112,30 +94,44 @@ if (btnInvert) {
 
 /* =========================================================
    ACESSIBILIDADE — TAMANHO DA FONTE
-========================================================= */
+   ========================================================= */
 
 let fontScale =
     parseFloat(
-        localStorage.getItem(
-            "ocularFontScale"
-        )
+        localStorage.getItem("ocularFontScale")
     ) || 1;
+
+fontScale = Math.max(
+    0.8,
+    Math.min(1.8, fontScale)
+);
 
 
 function applyFontScale() {
 
     /*
-        Mantém a variável utilizada pelo CSS.
+       Variável CSS
     */
 
     document.documentElement.style.setProperty(
         "--font-scale",
-        fontScale
+        String(fontScale)
     );
+
+
+    /*
+       Aplicação direta no body.
+       Isso garante que o tamanho seja alterado
+       mesmo que o CSS não utilize --font-scale.
+    */
+
+    document.body.style.fontSize =
+        `${fontScale * 100}%`;
+
 
     localStorage.setItem(
         "ocularFontScale",
-        fontScale
+        String(fontScale)
     );
 
 }
@@ -149,14 +145,18 @@ const btnFontMinus = $("#btnFontMinus");
 const btnFontReset = $("#btnFontReset");
 
 
+/* AUMENTAR */
+
 if (btnFontPlus) {
 
     btnFontPlus.addEventListener("click", () => {
 
         fontScale =
             Math.min(
-                1.6,
-                +(fontScale + 0.1).toFixed(2)
+                1.8,
+                Number(
+                    (fontScale + 0.1).toFixed(2)
+                )
             );
 
         applyFontScale();
@@ -170,6 +170,8 @@ if (btnFontPlus) {
 }
 
 
+/* DIMINUIR */
+
 if (btnFontMinus) {
 
     btnFontMinus.addEventListener("click", () => {
@@ -177,7 +179,9 @@ if (btnFontMinus) {
         fontScale =
             Math.max(
                 0.8,
-                +(fontScale - 0.1).toFixed(2)
+                Number(
+                    (fontScale - 0.1).toFixed(2)
+                )
             );
 
         applyFontScale();
@@ -190,6 +194,8 @@ if (btnFontMinus) {
 
 }
 
+
+/* RESTAURAR */
 
 if (btnFontReset) {
 
@@ -209,8 +215,8 @@ if (btnFontReset) {
 
 
 /* =========================================================
-   RESTAURAÇÃO DAS CONFIGURAÇÕES
-========================================================= */
+   RESTAURAR CONFIGURAÇÕES SALVAS
+   ========================================================= */
 
 if (
     localStorage.getItem(
@@ -240,7 +246,7 @@ if (
 
 /* =========================================================
    SISTEMA DE VOZ
-========================================================= */
+   ========================================================= */
 
 const speechSupported =
     "speechSynthesis" in window;
@@ -251,12 +257,16 @@ let speechIndex = 0;
 
 let isSpeaking = false;
 
+let isPaused = false;
+
 let speechTimer = null;
 
+let currentUtterance = null;
 
-/*
-    Divide textos longos em partes menores.
-*/
+
+/* =========================================================
+   DIVIDIR TEXTO EM BLOCOS
+   ========================================================= */
 
 function splitTextForSpeech(text) {
 
@@ -264,90 +274,114 @@ function splitTextForSpeech(text) {
         return [];
     }
 
+
     const cleanText =
         text
             .replace(/\s+/g, " ")
             .trim();
 
+
     if (!cleanText) {
         return [];
     }
+
 
     const sentences =
         cleanText.split(
             /(?<=[.!?])\s+/
         );
 
+
     const chunks = [];
 
     let currentChunk = "";
 
-    const MAX_CHARS = 300;
+    const MAX_CHARS = 250;
 
 
-    sentences.forEach(sentence => {
+    sentences.forEach(
+        (sentence) => {
 
-        sentence = sentence.trim();
-
-        if (!sentence) {
-            return;
-        }
+            sentence =
+                sentence.trim();
 
 
-        if (sentence.length > MAX_CHARS) {
-
-            const smaller =
-                sentence.split(
-                    /(?<=[,;:])\s+/
-                );
+            if (!sentence) {
+                return;
+            }
 
 
-            smaller.forEach(part => {
-
-                part = part.trim();
-
-                if (!part) {
-                    return;
-                }
-
-
-                if (
-                    currentChunk.length +
-                    part.length >
-                    MAX_CHARS
-                ) {
-
-                    if (currentChunk.trim()) {
-
-                        chunks.push(
-                            currentChunk.trim()
-                        );
-
-                    }
-
-                    currentChunk = part;
-
-                } else {
-
-                    currentChunk +=
-                        currentChunk
-                            ? " " + part
-                            : part;
-
-                }
-
-            });
-
-
-        } else {
+            /*
+               Frases muito grandes
+            */
 
             if (
-                currentChunk.length +
                 sentence.length >
                 MAX_CHARS
             ) {
 
-                if (currentChunk.trim()) {
+                const parts =
+                    sentence.split(
+                        /(?<=[,;:])\s+/
+                    );
+
+
+                parts.forEach(
+                    (part) => {
+
+                        part =
+                            part.trim();
+
+
+                        if (!part) {
+                            return;
+                        }
+
+
+                        if (
+                            currentChunk.length +
+                            part.length +
+                            1 >
+                            MAX_CHARS
+                        ) {
+
+                            if (
+                                currentChunk.trim()
+                            ) {
+
+                                chunks.push(
+                                    currentChunk.trim()
+                                );
+
+                            }
+
+
+                            currentChunk =
+                                part;
+
+                        } else {
+
+                            currentChunk +=
+                                currentChunk
+                                    ? " " + part
+                                    : part;
+
+                        }
+
+                    }
+                );
+
+
+            } else if (
+                currentChunk.length +
+                sentence.length +
+                1 >
+                MAX_CHARS
+            ) {
+
+                if (
+                    currentChunk.trim()
+                ) {
 
                     chunks.push(
                         currentChunk.trim()
@@ -355,7 +389,10 @@ function splitTextForSpeech(text) {
 
                 }
 
-                currentChunk = sentence;
+
+                currentChunk =
+                    sentence;
+
 
             } else {
 
@@ -367,11 +404,12 @@ function splitTextForSpeech(text) {
             }
 
         }
+    );
 
-    });
 
-
-    if (currentChunk.trim()) {
+    if (
+        currentChunk.trim()
+    ) {
 
         chunks.push(
             currentChunk.trim()
@@ -384,128 +422,355 @@ function splitTextForSpeech(text) {
 }
 
 
-/*
-    Inicia uma leitura.
-*/
+/* =========================================================
+   STATUS DA LEITURA
+   ========================================================= */
 
-function speak(text) {
+function updateSpeechStatus(message) {
+
+    announce(message);
+
+
+    const status =
+        $("#speechStatus");
+
+
+    if (
+        status &&
+        status !== liveRegion
+    ) {
+
+        status.textContent =
+            message;
+
+    }
+
+}
+
+
+/* =========================================================
+   INICIAR LEITURA
+   ========================================================= */
+
+function speak(
+    text,
+    restart = true
+) {
 
     if (!speechSupported) {
 
-        announce(
+        updateSpeechStatus(
             "A síntese de voz não está disponível neste navegador."
         );
 
         return;
+    }
+
+
+    if (
+        !text ||
+        !text.trim()
+    ) {
+
+        updateSpeechStatus(
+            "Não há texto para leitura."
+        );
+
+        return;
+    }
+
+
+    if (restart) {
+
+        window.speechSynthesis.cancel();
+
+
+        if (speechTimer) {
+
+            clearTimeout(
+                speechTimer
+            );
+
+            speechTimer = null;
+
+        }
+
+
+        speechQueue =
+            splitTextForSpeech(
+                text
+            );
+
+
+        speechIndex = 0;
+
+        isPaused = false;
 
     }
 
 
-    stopSpeech(false);
+    if (
+        !speechQueue.length
+    ) {
 
+        updateSpeechStatus(
+            "Não há texto para leitura."
+        );
 
-    speechQueue =
-        splitTextForSpeech(text);
+        return;
+    }
 
-    speechIndex = 0;
 
     isSpeaking = true;
+
+    isPaused = false;
+
 
     speakNextChunk();
 
 }
 
 
-/*
-    Lê o próximo bloco.
-*/
+/* =========================================================
+   LER PRÓXIMO BLOCO
+   ========================================================= */
 
 function speakNextChunk() {
 
     if (
         !isSpeaking ||
-        speechIndex >= speechQueue.length
+        isPaused
+    ) {
+
+        return;
+    }
+
+
+    if (
+        speechIndex >=
+        speechQueue.length
     ) {
 
         isSpeaking = false;
 
-        speechQueue = [];
+        isPaused = false;
 
-        speechIndex = 0;
+        currentUtterance = null;
+
+
+        updateSpeechStatus(
+            "Leitura concluída."
+        );
 
         return;
-
     }
 
 
-    const utterance =
+    const text =
+        speechQueue[
+            speechIndex
+        ];
+
+
+    currentUtterance =
         new SpeechSynthesisUtterance(
-            speechQueue[speechIndex]
+            text
         );
 
 
-    utterance.lang = "pt-BR";
-
-    utterance.rate = 0.85;
-
-    utterance.pitch = 1;
-
-    utterance.volume = 1;
+    currentUtterance.lang =
+        "pt-BR";
 
 
-    utterance.onend = () => {
-
-        if (!isSpeaking) {
-            return;
-        }
-
-        speechIndex++;
+    currentUtterance.rate =
+        0.85;
 
 
-        speechTimer =
-            setTimeout(
-                speakNextChunk,
-                250
-            );
-
-    };
+    currentUtterance.pitch =
+        1;
 
 
-    utterance.onerror = () => {
+    currentUtterance.volume =
+        1;
 
-        if (!isSpeaking) {
-            return;
-        }
 
-        speechIndex++;
+    currentUtterance.onend =
+        () => {
 
-        speechTimer =
-            setTimeout(
-                speakNextChunk,
-                250
-            );
+            if (
+                !isSpeaking ||
+                isPaused
+            ) {
 
-    };
+                return;
+            }
+
+
+            speechIndex++;
+
+
+            speechTimer =
+                setTimeout(
+                    () => {
+
+                        speechTimer =
+                            null;
+
+                        speakNextChunk();
+
+                    },
+                    100
+                );
+
+        };
+
+
+    currentUtterance.onerror =
+        (event) => {
+
+            if (
+                event.error ===
+                    "canceled" ||
+                event.error ===
+                    "interrupted"
+            ) {
+
+                return;
+            }
+
+
+            if (!isSpeaking) {
+                return;
+            }
+
+
+            speechIndex++;
+
+
+            speechTimer =
+                setTimeout(
+                    () => {
+
+                        speechTimer =
+                            null;
+
+                        speakNextChunk();
+
+                    },
+                    100
+                );
+
+        };
 
 
     window.speechSynthesis.speak(
-        utterance
+        currentUtterance
     );
 
 }
 
 
-/*
-    Para a leitura.
-*/
+/* =========================================================
+   PAUSAR
+   ========================================================= */
 
-function stopSpeech(showMessage = true) {
+function pauseSpeech() {
+
+    if (
+        !speechSupported ||
+        !isSpeaking
+    ) {
+
+        return;
+    }
+
+
+    if (
+        window.speechSynthesis
+            .speaking
+    ) {
+
+        window.speechSynthesis.pause();
+
+        isPaused = true;
+
+
+        updateSpeechStatus(
+            "Leitura pausada."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   CONTINUAR
+   ========================================================= */
+
+function resumeSpeech() {
+
+    if (
+        !speechSupported ||
+        !isSpeaking
+    ) {
+
+        return;
+    }
+
+
+    if (isPaused) {
+
+        isPaused = false;
+
+
+        window.speechSynthesis.resume();
+
+
+        updateSpeechStatus(
+            "Continuando a leitura."
+        );
+
+
+        /*
+           Segurança para navegadores que
+           não retomam automaticamente.
+        */
+
+        setTimeout(
+            () => {
+
+                if (
+                    isSpeaking &&
+                    !isPaused &&
+                    !window.speechSynthesis
+                        .speaking
+                ) {
+
+                    speakNextChunk();
+
+                }
+
+            },
+            150
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   PARAR
+   ========================================================= */
+
+function stopSpeech(
+    showMessage = true
+) {
 
     isSpeaking = false;
 
-    speechQueue = [];
-
-    speechIndex = 0;
+    isPaused = false;
 
 
     if (speechTimer) {
@@ -526,9 +791,12 @@ function stopSpeech(showMessage = true) {
     }
 
 
+    currentUtterance = null;
+
+
     if (showMessage) {
 
-        announce(
+        updateSpeechStatus(
             "Leitura interrompida."
         );
 
@@ -538,13 +806,11 @@ function stopSpeech(showMessage = true) {
 
 
 /* =========================================================
-   BOTÕES DE LEITURA
-========================================================= */
+   BOTÃO — LER PÁGINA
+   ========================================================= */
 
-const btnRead = $("#btnRead");
-
-const btnStopSpeech =
-    $("#btnStopSpeech");
+const btnRead =
+    $("#btnRead");
 
 
 if (btnRead) {
@@ -554,15 +820,32 @@ if (btnRead) {
         () => {
 
             const main =
-                document.querySelector("main");
+                $("main");
+
 
             if (!main) {
+
+                updateSpeechStatus(
+                    "Não foi encontrado o conteúdo principal da página."
+                );
+
                 return;
             }
 
-            speak(main.innerText);
 
-            announce(
+            const text =
+                main.innerText ||
+                main.textContent ||
+                "";
+
+
+            speak(
+                text,
+                true
+            );
+
+
+            updateSpeechStatus(
                 "Iniciando leitura da página."
             );
 
@@ -572,13 +855,67 @@ if (btnRead) {
 }
 
 
+/* =========================================================
+   BOTÃO — PARAR
+   ========================================================= */
+
+const btnStopSpeech =
+    $("#btnStopSpeech");
+
+
 if (btnStopSpeech) {
 
     btnStopSpeech.addEventListener(
         "click",
         () => {
 
-            stopSpeech();
+            stopSpeech(
+                true
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   BOTÃO — PAUSAR
+   ========================================================= */
+
+const btnPauseSpeech =
+    $("#btnPauseSpeech");
+
+
+if (btnPauseSpeech) {
+
+    btnPauseSpeech.addEventListener(
+        "click",
+        () => {
+
+            pauseSpeech();
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   BOTÃO — CONTINUAR
+   ========================================================= */
+
+const btnResumeSpeech =
+    $("#btnResumeSpeech");
+
+
+if (btnResumeSpeech) {
+
+    btnResumeSpeech.addEventListener(
+        "click",
+        () => {
+
+            resumeSpeech();
 
         }
     );
@@ -588,43 +925,63 @@ if (btnStopSpeech) {
 
 /* =========================================================
    LEITURA DOS CONCEITOS
-========================================================= */
+   ========================================================= */
 
-$$(".read-button").forEach(button => {
+$$(".read-button")
+    .forEach(
+        (button) => {
 
-    button.addEventListener(
-        "click",
-        () => {
+            button.addEventListener(
+                "click",
+                () => {
 
-            const target =
-                document.getElementById(
-                    button.dataset.readTarget
-                );
-
-
-            if (!target) {
-                return;
-            }
+                    const targetId =
+                        button.dataset
+                            .readTarget;
 
 
-            speak(
-                target.textContent
-            );
+                    const target =
+                        document.getElementById(
+                            targetId
+                        );
 
 
-            announce(
-                `Lendo ${target.textContent}`
+                    if (!target) {
+
+                        announce(
+                            "Não foi encontrado o texto solicitado."
+                        );
+
+                        return;
+                    }
+
+
+                    const text =
+                        target.innerText ||
+                        target.textContent ||
+                        "";
+
+
+                    speak(
+                        text,
+                        true
+                    );
+
+
+                    announce(
+                        `Lendo ${text}`
+                    );
+
+                }
             );
 
         }
     );
 
-});
-
 
 /* =========================================================
    INFORMAÇÕES ANATÔMICAS
-========================================================= */
+   ========================================================= */
 
 const anatomyDescription =
     $("#anatomyDescription");
@@ -633,116 +990,352 @@ const anatomyDescription =
 const anatomyInfo = {
 
     cornea: {
+
         name: "Córnea",
+
         text:
             "A córnea é a camada transparente localizada na parte anterior do olho. Ela protege as estruturas internas e participa da refração da luz."
+
     },
 
 
     iris: {
+
         name: "Íris",
+
         text:
             "A íris é a estrutura pigmentada localizada atrás da córnea. Seus músculos controlam o tamanho da pupila e ajudam a regular a quantidade de luz que entra no olho."
+
     },
 
 
     pupil: {
+
         name: "Pupila",
+
         text:
             "A pupila é a abertura central da íris. A luz atravessa essa abertura para entrar no interior do olho."
+
     },
 
 
     lens: {
+
         name: "Cristalino",
+
         text:
             "O cristalino é uma estrutura transparente localizada atrás da íris. Ele contribui para focalizar a luz sobre a retina e pode mudar de forma durante a acomodação."
+
     },
 
 
     retina: {
+
         name: "Retina",
+
         text:
             "A retina é um tecido neural localizado na parte interna posterior do olho. Ela contém cones, bastonetes e outros tipos de células envolvidos no processamento inicial das informações visuais."
+
     },
 
 
     macula: {
+
         name: "Mácula",
+
         text:
             "A mácula é uma região especializada da retina relacionada principalmente à visão central detalhada."
+
     },
 
 
     fovea: {
+
         name: "Fóvea",
+
         text:
             "A fóvea é uma pequena região localizada no centro da mácula. Ela apresenta alta concentração de cones e está associada à maior acuidade visual."
+
     },
 
 
     "optic-nerve": {
+
         name: "Nervo óptico",
+
         text:
             "O nervo óptico é formado principalmente pelos axônios das células ganglionares da retina. Ele conduz informações visuais da retina em direção ao cérebro."
+
     }
 
 };
 
 
 /* =========================================================
-   INTERAÇÃO COM AS ESTRUTURAS DO OLHO
-========================================================= */
+   INTERAÇÃO COM AS PARTES DO OLHO
+   ========================================================= */
 
-$$(".eye-part[data-part]").forEach(part => {
-
-    function explainAnatomy() {
-
-        const key =
-            part.dataset.part;
-
-        const information =
-            anatomyInfo[key];
+$$(
+    ".eye-part[data-part]"
+)
+.forEach(
+    (part) => {
 
 
-        if (!information) {
-            return;
+        function explainAnatomy() {
+
+            const key =
+                part.dataset.part;
+
+
+            const information =
+                anatomyInfo[key];
+
+
+            if (!information) {
+                return;
+            }
+
+
+            if (
+                anatomyDescription
+            ) {
+
+                anatomyDescription.textContent =
+                    `${information.name}: ${information.text}`;
+
+            }
+
+
+            announce(
+                `${information.name}. ${information.text}`
+            );
+
+
+            speak(
+                `${information.name}. ${information.text}`,
+                true
+            );
+
         }
 
 
-        if (anatomyDescription) {
+        /*
+           Clique
+        */
 
-            anatomyDescription.textContent =
-                `${information.name}: ${information.text}`;
+        part.addEventListener(
+            "click",
+            explainAnatomy
+        );
+
+
+        /*
+           Teclado
+        */
+
+        part.addEventListener(
+            "keydown",
+            (event) => {
+
+                if (
+                    event.key === "Enter" ||
+                    event.key === " " ||
+                    event.code === "Space"
+                ) {
+
+                    event.preventDefault();
+
+                    explainAnatomy();
+
+                }
+
+            }
+        );
+
+
+        /*
+           Permite acesso pelo teclado
+        */
+
+        if (
+            !part.hasAttribute(
+                "tabindex"
+            )
+        ) {
+
+            part.setAttribute(
+                "tabindex",
+                "0"
+            );
 
         }
 
 
-        announce(
-            `${information.name}. ${information.text}`
-        );
+        /*
+           Informa ao leitor de tela
+           que é um botão.
+        */
+
+        if (
+            !part.hasAttribute(
+                "role"
+            )
+        ) {
+
+            part.setAttribute(
+                "role",
+                "button"
+            );
+
+        }
+
+    }
+);
 
 
-        speak(
-            `${information.name}. ${information.text}`
-        );
+/* =========================================================
+   ATALHO DE TECLADO — SHIFT + Z
+   ========================================================= */
 
+document.addEventListener(
+    "keydown",
+    (event) => {
+
+        /*
+           Shift + Z
+        */
+
+        if (
+            event.shiftKey &&
+            event.key.toLowerCase() === "z"
+        ) {
+
+            event.preventDefault();
+
+
+            const main =
+                $("main");
+
+
+            if (!main) {
+                return;
+            }
+
+
+            /*
+               Se estiver pausado,
+               continua de onde parou.
+            */
+
+            if (
+                isSpeaking &&
+                isPaused
+            ) {
+
+                resumeSpeech();
+
+                return;
+            }
+
+
+            /*
+               Caso contrário,
+               começa uma nova leitura.
+            */
+
+            const text =
+                main.innerText ||
+                main.textContent ||
+                "";
+
+
+            speak(
+                text,
+                true
+            );
+
+
+            updateSpeechStatus(
+                "Leitura iniciada pelo atalho Shift + Z."
+            );
+
+        }
+
+    }
+);
+
+
+/* =========================================================
+   ACESSIBILIDADE DOS BOTÕES
+   ========================================================= */
+
+function addButtonFeedback(
+    button
+) {
+
+    if (!button) {
+        return;
     }
 
 
-    part.addEventListener(
-        "click",
-        explainAnatomy
+    button.addEventListener(
+        "focus",
+        () => {
+
+            const label =
+                button.getAttribute(
+                    "aria-label"
+                ) ||
+                button.textContent.trim();
+
+
+            if (label) {
+
+                announce(
+                    label
+                );
+
+            }
+
+        }
     );
 
+}
 
-    part.addEventListener(
-        "keydown",
-        event => {
 
-            if (
-                event.key === "Enter" ||
-                event.key === " "
-            ) {
+[
+    btnContrast,
+    btnInvert,
+    btnFontPlus,
+    btnFontMinus,
+    btnFontReset,
+    btnRead,
+    btnStopSpeech,
+    btnPauseSpeech,
+    btnResumeSpeech
+]
+.forEach(
+    (button) => {
 
-                event.prevent
+        addButtonFeedback(
+            button
+        );
+
+    }
+);
+
+
+/* =========================================================
+   INICIALIZAÇÃO
+   ========================================================= */
+
+document.documentElement.style.setProperty(
+    "--font-scale",
+    String(fontScale)
+);
+
+
+console.log(
+    "Sistema de acessibilidade carregado com sucesso."
+);
